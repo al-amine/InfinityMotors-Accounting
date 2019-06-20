@@ -24,6 +24,8 @@ public class AccountingService {
 	@Autowired
 	private OrderItemDao orderItemDao;
 	
+	private List<Order> ordersInCurrentMonthAndYear = new ArrayList<>();
+	
 	
 	public void generateReport() throws IOException{
 		
@@ -42,11 +44,15 @@ public class AccountingService {
 		};
 		writer.writeNext(header);
 		
-		//calculate results
 		int monthInt = now.getMonthValue();
-		String numCarsSold = getNumCarsSold(monthInt, year);
-		String numOrders = getNumOrders(monthInt, year);
 		
+		//populate the private List<Order>. works like an init
+		setOrdersInCurrentMonthAndYear(monthInt, year);
+		
+		//calculate results
+		String numCarsSold = getNumCarsSold();
+		String numOrders = getNumOrders();
+		//String numCustomers = getNumCustomers(monthInt, year);
 		
 		//add results as a row to csv file
 		String[] data = {numCarsSold, numOrders};
@@ -56,18 +62,25 @@ public class AccountingService {
 	}
 	
 	
-	public String getNumCarsSold(int month, int year) {
-		
+	public void setOrdersInCurrentMonthAndYear(int month, int year) {
 		List<Order> orders = orderDao.findAll();
-		List<Integer> orderIds = new ArrayList<>();
 		
 		for(Order o : orders) {
-			//add orderIds that are within current month and year to arraylist
+			//add orders that are within current month and year
 			if((month == o.getPurchaseDate().getMonthValue()) && (year == o.getPurchaseDate().getYear())) {
-				orderIds.add(o.getOrderId());
+				ordersInCurrentMonthAndYear.add(o);
 			}
 		}
+	}
+	
+	
+	public String getNumCarsSold() {
 		
+		List<Integer> orderIds = new ArrayList<>();
+		for(Order o : ordersInCurrentMonthAndYear) {
+			orderIds.add(o.getOrderId());  //add orderIds to an arraylist
+		}
+
 		int totalNumberCars = 0;
 		for(int i=0; i<orderIds.size(); i++) {
 			//using custom-made jpa method
@@ -76,24 +89,23 @@ public class AccountingService {
 			totalNumberCars = totalNumberCars + matchingItems.size();
 		}
 		
-		//return string version of totalNumberCars
+		//return totalNumberCars as a string
 		return Integer.toString(totalNumberCars);
 	}
 	
 	
-	public String getNumOrders(int month, int year) {
-		
-		List<Order> orders = orderDao.findAll();
-		List<Integer> orderIds = new ArrayList<>();
-		
-		for(Order o : orders) {
-			if((month == o.getPurchaseDate().getMonthValue()) && (year == o.getPurchaseDate().getYear())) {
-				orderIds.add(o.getOrderId());
-			}
-		}
-		
-		return Integer.toString(orderIds.size());
+	public String getNumOrders() {
+
+		return Integer.toString(ordersInCurrentMonthAndYear.size());
 	}
+	
+	
+	public String getNumCustomers(int month, int year) {
+		
+		
+		return "";
+	}
+	
 	
 	
 	
