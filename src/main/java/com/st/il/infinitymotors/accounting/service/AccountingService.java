@@ -27,8 +27,8 @@ public class AccountingService {
 	
 	private List<Order> ordersInCurrentMonthAndYear = new ArrayList<>();
 	private int totalRevenue = 0;
-	private float taxAmount = 0;
-	private float netIncome = 0;
+	private int taxAmount = 0;
+	private int netIncome = 0;
 	
 	public void generateReport() throws IOException{
 		
@@ -57,10 +57,10 @@ public class AccountingService {
 		String numOrders = getNumOrders();
 		String numCustomers = getNumCustomers();
 		String totalRevenue = getTotalRevenue();
-		
+		String taxAmount = getTaxAmount();
 		
 		//add results as a row to csv file
-		String[] data = {numCarsSold, numOrders, numCustomers, totalRevenue};
+		String[] data = {numCarsSold, numOrders, numCustomers, totalRevenue, taxAmount};
 		writer.writeNext(data);
 			
 		writer.close();
@@ -125,5 +125,10 @@ public class AccountingService {
 		return Integer.toString(totalRevenue);
 	}
 	
+	
+	public String getTaxAmount() {
+		taxAmount = (int) (totalRevenue * .06);
+		return Integer.toString(taxAmount);
+	}
 
 }
