@@ -58,11 +58,18 @@ public class AccountingService {
 		String numCustomers = getNumCustomers();
 		String totalRevenue = getTotalRevenue();
 		String taxAmount = getTaxAmount();
+		String netIncome = getNetIncome();
 		
 		//add results as a row to csv file
-		String[] data = {numCarsSold, numOrders, numCustomers, totalRevenue, taxAmount};
+		String[] data = {numCarsSold, numOrders, numCustomers, totalRevenue, taxAmount, netIncome};
 		writer.writeNext(data);
-			
+		
+		//reset all values
+		ordersInCurrentMonthAndYear.clear();
+		this.totalRevenue = 0;
+		this.taxAmount = 0;
+		this.netIncome = 0;
+		
 		writer.close();
 	}
 	
@@ -130,5 +137,10 @@ public class AccountingService {
 		taxAmount = (int) (totalRevenue * .06);
 		return Integer.toString(taxAmount);
 	}
-
+	
+	
+	public String getNetIncome() {
+		netIncome = totalRevenue - taxAmount;
+		return Integer.toString(netIncome);
+	}
 }
