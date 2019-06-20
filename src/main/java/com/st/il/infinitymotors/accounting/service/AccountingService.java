@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,10 +53,10 @@ public class AccountingService {
 		//calculate results
 		String numCarsSold = getNumCarsSold();
 		String numOrders = getNumOrders();
-		//String numCustomers = getNumCustomers(monthInt, year);
+		String numCustomers = getNumCustomers();
 		
 		//add results as a row to csv file
-		String[] data = {numCarsSold, numOrders};
+		String[] data = {numCarsSold, numOrders, numCustomers};
 		writer.writeNext(data);
 			
 		writer.close();
@@ -74,9 +75,9 @@ public class AccountingService {
 	}
 	
 	
-	public String getNumCarsSold() {
-		
+	public String getNumCarsSold() {	
 		List<Integer> orderIds = new ArrayList<>();
+		
 		for(Order o : ordersInCurrentMonthAndYear) {
 			orderIds.add(o.getOrderId());  //add orderIds to an arraylist
 		}
@@ -95,18 +96,23 @@ public class AccountingService {
 	
 	
 	public String getNumOrders() {
-
 		return Integer.toString(ordersInCurrentMonthAndYear.size());
 	}
 	
 	
-	public String getNumCustomers(int month, int year) {
+	public String getNumCustomers() {	
+		HashSet<Integer> customers = new HashSet<>();
 		
+		for(int i=0; i<ordersInCurrentMonthAndYear.size(); i++) {
+			if(!customers.contains(ordersInCurrentMonthAndYear.get(i).getUserId())) {
+				customers.add(ordersInCurrentMonthAndYear.get(i).getUserId());
+			}
+		}
 		
-		return "";
+		return Integer.toString(customers.size()); 
 	}
 	
 	
 	
-	
+
 }
