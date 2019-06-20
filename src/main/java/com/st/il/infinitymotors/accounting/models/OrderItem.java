@@ -16,7 +16,7 @@ public class OrderItem {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer orderItemId;
+	private Integer orderitemId;
 	
 	@Column(name="orderId")
 	private Integer orderId;
@@ -27,18 +27,18 @@ public class OrderItem {
 	
 	public OrderItem() {}
 	
-	public OrderItem(Integer orderItemId, Integer orderId, Integer carId) {
-		this.orderItemId = orderItemId;
+	public OrderItem(Integer orderitemId, Integer orderId, Integer carId) {
+		this.orderitemId = orderitemId;
 		this.orderId = orderId;
 		this.carId = carId;
 	}
 
 	public Integer getOrderItemId() {
-		return orderItemId;
+		return orderitemId;
 	}
 
 	public void setOrderItemId(Integer orderItemId) {
-		this.orderItemId = orderItemId;
+		this.orderitemId = orderItemId;
 	}
 
 	public Integer getOrderId() {
@@ -61,7 +61,7 @@ public class OrderItem {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((orderItemId == null) ? 0 : orderItemId.hashCode());
+		result = prime * result + ((orderitemId == null) ? 0 : orderitemId.hashCode());
 		return result;
 	}
 
@@ -74,16 +74,16 @@ public class OrderItem {
 		if (getClass() != obj.getClass())
 			return false;
 		OrderItem other = (OrderItem) obj;
-		if (orderItemId == null) {
-			if (other.orderItemId != null)
+		if (orderitemId == null) {
+			if (other.orderitemId != null)
 				return false;
-		} else if (!orderItemId.equals(other.orderItemId))
+		} else if (!orderitemId.equals(other.orderitemId))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "OrderItem [orderItemId=" + orderItemId + ", orderId=" + orderId + ", carId=" + carId + "]";
+		return "OrderItem [orderItemId=" + orderitemId + ", orderId=" + orderId + ", carId=" + carId + "]";
 	}
 }
