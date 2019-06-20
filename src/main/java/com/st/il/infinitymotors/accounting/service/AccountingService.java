@@ -42,16 +42,19 @@ public class AccountingService {
 		};
 		writer.writeNext(header);
 		
+		//calculate results
 		int monthInt = now.getMonthValue();
 		String numCarsSold = getNumCarsSold(monthInt, year);
+		String numOrders = getNumOrders(monthInt, year);
 		
 		
-		//the results
-		String[] data = {numCarsSold};
+		//add results as a row to csv file
+		String[] data = {numCarsSold, numOrders};
 		writer.writeNext(data);
 			
 		writer.close();
 	}
+	
 	
 	public String getNumCarsSold(int month, int year) {
 		
@@ -78,6 +81,19 @@ public class AccountingService {
 	}
 	
 	
+	public String getNumOrders(int month, int year) {
+		
+		List<Order> orders = orderDao.findAll();
+		List<Integer> orderIds = new ArrayList<>();
+		
+		for(Order o : orders) {
+			if((month == o.getPurchaseDate().getMonthValue()) && (year == o.getPurchaseDate().getYear())) {
+				orderIds.add(o.getOrderId());
+			}
+		}
+		
+		return Integer.toString(orderIds.size());
+	}
 	
 	
 	
