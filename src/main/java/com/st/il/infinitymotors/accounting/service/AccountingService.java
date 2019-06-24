@@ -1,5 +1,6 @@
 package com.st.il.infinitymotors.accounting.service;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -8,7 +9,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVWriter;
@@ -24,6 +32,12 @@ public class AccountingService {
 	private OrderDao orderDao;
 	@Autowired
 	private OrderItemDao orderItemDao;
+	@Autowired
+	private JavaMailSender javaMailSender;
+	
+	//inject from application.properties
+	@Value("${spring.mail.username}")
+	String gmailUserName;
 	
 	private List<Order> ordersInCurrentMonthAndYear = new ArrayList<>();
 	private int totalRevenue = 0;
@@ -36,7 +50,7 @@ public class AccountingService {
 		LocalDateTime now = LocalDateTime.now();
 		Month monthName = now.getMonth();
 		int year = now.getYear();
-		String filename = monthName + "-" + year + "report.csv";
+		String filename = monthName + "_" + year + "_" + "Report.csv";
 		
 		//initialize a csvwriter
 		CSVWriter writer = new CSVWriter(new FileWriter(filename));
@@ -63,6 +77,7 @@ public class AccountingService {
 		//add results as a row to csv file
 		String[] data = {numCarsSold, numOrders, numCustomers, totalRevenue, taxAmount, netIncome};
 		writer.writeNext(data);
+		writer.close();
 		
 		//reset all values
 		ordersInCurrentMonthAndYear.clear();
@@ -70,7 +85,13 @@ public class AccountingService {
 		this.taxAmount = 0;
 		this.netIncome = 0;
 		
-		writer.close();
+		//email report to an admin
+		try {
+			sendEmailWithAttachment(monthName, year, filename);
+		} 
+		catch (MessagingException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -142,5 +163,21 @@ public class AccountingService {
 	public String getNetIncome() {
 		netIncome = totalRevenue - taxAmount;
 		return Integer.toString(netIncome);
+	}
+	
+	
+	public void sendEmailWithAttachment(Month monthName, int year, String filename) throws MessagingException {	
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		
+		helper.setTo(gmailUserName);
+		helper.setSubject("Sales Report");
+		helper.setText("See attachment for report as a .csv", true);
+		
+		String filepath = "./" + filename;
+		FileSystemResource file = new FileSystemResource(new File(filepath));
+		helper.addAttachment(filename, file);
+		
+		javaMailSender.send(msg);
 	}
 }
